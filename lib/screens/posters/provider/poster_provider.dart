@@ -4,9 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import '../../../core/data/data_provider.dart';
-import '../../../models/category.dart';
 import '../../../models/poster.dart';
 
 class PosterProvider extends ChangeNotifier {
@@ -16,21 +14,16 @@ class PosterProvider extends ChangeNotifier {
   TextEditingController posterNameCtrl = TextEditingController();
   Poster? posterForUpdate;
 
-
   File? selectedImage;
   XFile? imgXFile;
-
 
   PosterProvider(this._dataProvider);
 
   //TODO: should complete addPoster
 
-
   //TODO: should complete updatePoster
 
-
   //TODO: should complete submitPoster
-
 
   void pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -42,9 +35,7 @@ class PosterProvider extends ChangeNotifier {
     }
   }
 
-
   //TODO: should complete deletePoster
-
 
   setDataForUpdatePoster(Poster? poster) {
     if (poster != null) {
@@ -56,7 +47,9 @@ class PosterProvider extends ChangeNotifier {
     }
   }
 
-  Future<FormData> createFormData({required XFile? imgXFile, required Map<String, dynamic> formData}) async {
+  Future<FormData> createFormData(
+      {required XFile? imgXFile,
+      required Map<String, dynamic> formData}) async {
     if (imgXFile != null) {
       MultipartFile multipartFile;
       if (kIsWeb) {

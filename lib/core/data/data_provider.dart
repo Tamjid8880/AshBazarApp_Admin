@@ -62,6 +62,7 @@ class DataProvider extends ChangeNotifier {
   DataProvider() {
     getAllCategory();
     getAllSubCategory();
+    getAllBrands();
   }
 
   //TODO: should complete getAllCategory
@@ -140,12 +141,77 @@ class DataProvider extends ChangeNotifier {
   //TODO: should complete filterSubCategories
 
   //TODO: should complete getAllBrands
+  Future<List<Brand>> getAllBrands({bool showSnack = false}) async {
+    try {
+      Response response = await service.getItems(endpointUrl: 'brands');
+      if (response.isOk) {
+        ApiResponse<List<Brand>> apiResponse =
+            ApiResponse<List<Brand>>.fromJson(
+          response.body,
+          (json) => (json as List).map((item) => Brand.fromJson(item)).toList(),
+        );
+        _allBrands = apiResponse.data ?? [];
+        _filteredBrands = List.from(_allBrands);
+        notifyListeners();
+        if (showSnack) SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+      }
+    } catch (e) {
+      if (showSnack) SnackBarHelper.showErrorSnackBar(e.toString());
+      rethrow;
+    }
+    return _filteredBrands;
+  }
 
   //TODO: should complete filterBrands
+  void filterBrands(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredBrands = List.from(_allBrands);
+    } else {
+      final lowerkeyword = keyword.toLowerCase();
+      _filteredBrands = _allBrands.where((brand) {
+        final lowerBrandName = brand.name?.toLowerCase() ?? '';
+        return lowerBrandName.contains(lowerkeyword);
+      }).toList();
+    }
+    notifyListeners();
+  }
 
   //TODO: should complete getAllVariantType
+  Future<List<VariantType>> getAllVariantType({bool showSnack = false}) async {
+    try {
+      Response response = await service.getItems(endpointUrl: 'variantTypes');
+      if (response.isOk) {
+        ApiResponse<List<VariantType>> apiResponse =
+            ApiResponse<List<VariantType>>.fromJson(
+          response.body,
+          (json) =>
+              (json as List).map((item) => VariantType.fromJson(item)).toList(),
+        );
+        _allVariantTypes = apiResponse.data ?? [];
+        _filteredVariantTypes = List.from(_allVariantTypes);
+        notifyListeners();
+        if (showSnack) SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+      }
+    } catch (e) {
+      if (showSnack) SnackBarHelper.showErrorSnackBar(e.toString());
+      rethrow;
+    }
+    return _filteredVariantTypes;
+  }
 
   //TODO: should complete filterVariantTypes
+  void filterVariantTypes(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredVariantTypes = List.from(_allVariantTypes);
+    } else {
+      final lowerkeyword = keyword.toLowerCase();
+      _filteredVariantTypes = _allVariantTypes.where((variantType) {
+        final lowerVariantTypeName = variantType.name?.toLowerCase() ?? '';
+        return lowerVariantTypeName.contains(lowerkeyword);
+      }).toList();
+    }
+    notifyListeners();
+  }
 
   //TODO: should complete getAllVariant
 
