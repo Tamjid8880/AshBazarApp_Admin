@@ -1,3 +1,5 @@
+import 'package:admin/utility/extensions.dart';
+
 import '../../../core/data/data_provider.dart';
 import '../../../models/variant.dart';
 import 'add_variant_form.dart';
@@ -57,6 +59,8 @@ class VariantsListSection extends StatelessWidget {
                       showAddVariantForm(context, dataProvider.variants[index]);
                     }, delete: () {
                       //TODO: should complete call deleteVariant
+                      context.variantProvider.deleteVariant(
+                          dataProvider.variants[index].sId ?? '');
                     }),
                   ),
                 );
