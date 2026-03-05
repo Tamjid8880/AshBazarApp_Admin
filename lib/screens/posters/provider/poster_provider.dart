@@ -1,4 +1,8 @@
 import 'dart:io';
+
+import 'package:admin/models/api_response.dart';
+import 'package:admin/utility/snack_bar_helper.dart';
+
 import '../../../services/http_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' hide Category;
@@ -20,10 +24,111 @@ class PosterProvider extends ChangeNotifier {
   PosterProvider(this._dataProvider);
 
   //TODO: should complete addPoster
+  addPoster() async {
+    try {
+      if (selectedImage == null) {
+        SnackBarHelper.showErrorSnackBar("please choose a img");
+        return;
+      }
+      Map<String, dynamic> formDataMap = {
+        "posterName": posterNameCtrl.text,
+        'image': 'no_data',
+      };
+      final FormData form =
+          await createFormData(imgXFile: imgXFile, formData: formDataMap);
+      final response =
+          await service.addItem(endpointUrl: 'posters', itemData: form);
+      if (response.isOk) {
+        ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
+        if (apiResponse.success == true) {
+          clearFields();
+          SnackBarHelper.showSuccessSnackBar('${apiResponse.message}');
+
+          print('Poster added');
+          _dataProvider.getAllPosters();
+        } else {
+          SnackBarHelper.showErrorSnackBar('${apiResponse.message}');
+        }
+      } else {
+        SnackBarHelper.showErrorSnackBar(
+            'Error ${response.body?['message'] ?? response.statusText}');
+      }
+    } catch (e) {
+      print(e);
+      SnackBarHelper.showErrorSnackBar('Error $e');
+      rethrow;
+    }
+  }
 
   //TODO: should complete updatePoster
+  updatePoster() async {
+    try {
+      Map<String, dynamic> formDataMap = {
+        "posterName": posterNameCtrl.text,
+        'image': posterForUpdate?.imageUrl ?? '',
+      };
+      final FormData form =
+          await createFormData(imgXFile: imgXFile, formData: formDataMap);
+      final response = await service.updateItem(
+          endpointUrl: 'posters',
+          itemData: form,
+          itemId: posterForUpdate?.sId ?? '');
+      if (response.isOk) {
+        ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
+        if (apiResponse.success == true) {
+          clearFields();
+          SnackBarHelper.showSuccessSnackBar('${apiResponse.message}');
+
+          print('Poster updated');
+          _dataProvider.getAllPosters();
+        } else {
+          SnackBarHelper.showErrorSnackBar('${apiResponse.message}');
+        }
+      } else {
+        SnackBarHelper.showErrorSnackBar(
+            'Error ${response.body?["message"] ?? response.statusText}');
+      }
+    } catch (e) {
+      print(e);
+      SnackBarHelper.showErrorSnackBar('Error $e');
+      rethrow;
+    }
+  }
 
   //TODO: should complete submitPoster
+  submitPoster() {
+    if (posterForUpdate == null) {
+      addPoster();
+    } else {
+      updatePoster();
+    }
+  }
+
+  //TODO: should complete deletePoster
+  deletePoster(Poster poster) async {
+    try {
+      Response response = await service.deleteItem(
+          endpointUrl: 'posters', itemId: poster.sId ?? '');
+      if (response.isOk) {
+        ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
+        if (apiResponse.success == true) {
+          SnackBarHelper.showSuccessSnackBar(
+              'Poster delete successfully ${apiResponse.message}');
+          _dataProvider.getAllPosters();
+        } else {
+          SnackBarHelper.showErrorSnackBar(
+              'Error${response.body?["message"] ?? response.statusText}');
+        }
+      } else {
+        SnackBarHelper.showErrorSnackBar(
+            'Error ${response.body?["message"] ?? response.statusText}');
+      }
+    } catch (e) {
+      print(e);
+      SnackBarHelper.showErrorSnackBar('Error $e');
+      rethrow;
+    }
+  }
 
   void pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -34,8 +139,6 @@ class PosterProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  //TODO: should complete deletePoster
 
   setDataForUpdatePoster(Poster? poster) {
     if (poster != null) {
